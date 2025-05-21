@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GitHub Explorer</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #24292e;
+            --secondary-color: #0366d6;
+            --accent-color: #28a745;
+            --light-color: #f6f8fa;
+            --dark-color: #1f2328;
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background-color: white !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.8rem 1rem;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--primary-color) !important;
+        }
+        
+        .nav-link {
+            color: var(--dark-color) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
+        
+        .login_text a {
+            color: var(--secondary-color);
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--secondary-color);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .login_text a:hover {
+            background-color: var(--secondary-color);
+            color: white !important;
+            text-decoration: none;
+        }
+        
+        .banner_section {
+            padding: 3rem 0;
+            background-color: white;
+        }
+        
+        .best_taital {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        
+        #repoForm {
+            max-width: 600px;
+            margin: 0 auto 3rem auto;
+        }
+        
+        .input-group {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+        }
+        
+        #usernameInput {
+            border: 1px solid #e1e4e8;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+        
+        #usernameInput:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.2);
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #035fc7;
+            border-color: #035fc7;
+        }
+        
+        #repositoriesContainer {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+        
+        #repoTitle {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        #repoList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .repo-item {
+            padding: 1.5rem;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .repo-item:hover {
+            border-color: #d1d5da;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .repo-name {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .repo-name:hover {
+            text-decoration: underline;
+        }
+        
+        .repo-description {
+            color: #586069;
+            margin-bottom: 1rem;
+        }
+        
+        .repo-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #586069;
+        }
+        
+        .repo-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .repo-language {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.3rem;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid rgba(3, 102, 214, 0.1);
+            border-top-color: var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: #cb2431;
+            background-color: #ffebef;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 1px solid #e1e4e8;
+        }
+        
+        .user-info h2 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-info p {
+            color: #586069;
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .copyright_section {
+            background-color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid #e1e4e8;
+        }
+        
+        .copyright_text {
+            color: #586069;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .copyright_text a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+        
+        .copyright_text a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .best_taital {
+                font-size: 2rem;
+            }
+            
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-meta {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fab fa-github me-2"></i>GitHub Explorer
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-info-circle me-1"></i> About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-question-circle me-1"></i> Support</a>
+                    </li>
+                </ul>
+                <div class="login_text">
+                    <a href="login.html"><i class="fas fa-sign-in-alt me-1"></i> LOGIN</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="banner_section">
+        <div class="container">
+            <h1 class="best_taital">GitHub Explorer</h1>
+            <form id="repoForm" class="mb-5">
+                <div class="input-group">
+                    <input type="text" id="usernameInput" class="form-control form-control-lg" 
+                           placeholder="Enter GitHub username" aria-label="GitHub username" required>
+                    <button class="btn btn-primary btn-lg" type="submit">
+                        <i class="fas fa-search me-1"></i> Explore
+                    </button>
+                </div>
+            </form>
+            
+            <div id="repositoriesContainer" style="display: none;">
+                <div id="userInfoContainer"></div>
+                <h2 id="repoTitle"></h2>
+                <div id="repoList"></div>
+                <div id="loadingIndicator" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+                <div id="errorContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="copyright_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p class="copyright_text">
+                        © 2023 All rights reserved by <a href="https://www.linkedin.com/in/dpprasad/">Durga Prasad</a> developed for CodeClause Intern
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const repoForm = document.getElementById('repoForm');
+            const usernameInput = document.getElementById('usernameInput');
+            const repositoriesContainer = document.getElementById('repositoriesContainer');
+            const repoTitle = document.getElementById('repoTitle');
+            const repoList = document.getElementById('repoList');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const errorContainer = document.getElementById('errorContainer');
+            const userInfoContainer = document.getElementById('userInfoContainer');
+            
+            repoForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const username = usernameInput.value.trim();
+                
+                if (username) {
+                    exploreGitHubUser(username);
+                }
+            });
+            
+            async function exploreGitHubUser(username) {
+                // Show loading state
+                repositoriesContainer.style.display = 'block';
+                repoList.innerHTML = '';
+                userInfoContainer.innerHTML = '';
+                errorContainer.innerHTML = '';
+                loadingIndicator.style.display = 'flex';
+                
+                try {
+                    // Fetch user info
+                    const userResponse = await fetch(`https://api.github.com/users/${username}`);
+                    
+                    if (!userResponse.ok) {
+                        throw new Error(userResponse.status === 404 
+                            ? 'User not found. Please check the username and try again.' 
+                            : 'Failed to fetch user data');
+                    }
+                    
+                    const userData = await userResponse.json();
+                    
+                    // Display user info
+                    displayUserInfo(userData);
+                    
+                    // Fetch repositories
+                    const reposResponse = await fetch(userData.repos_url);
+                    
+                    if (!reposResponse.ok) {
+                        throw new Error('Failed to fetch repositories');
+                    }
+                    
+                    const reposData = await reposResponse.json();
+                    
+                    // Display repositories
+                    displayRepositories(reposData);
+                    
+                    // Update title
+                    repoTitle.textContent = `${reposData.length} ${reposData.length === 1 ? 'Repository' : 'Repositories'}`;
+                    
+                } catch (error) {
+                    showError(error.message);
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                }
+            }
+            
+            function displayUserInfo(user) {
+                userInfoContainer.innerHTML = `
+                    <div class="user-header">
+                        <img src="${user.avatar_url}" alt="${user.login}" class="avatar">
+                        <div class="user-info">
+                            <h2>${user.name || user.login}</h2>
+                            <p>${user.bio || 'No bio available'}</p>
+                            <div class="user-meta">
+                                <span><i class="fas fa-users"></i> ${user.followers} followers</span>
+                                <span><i class="fas fa-user-plus"></i> ${user.following} following</span>
+                                <span><i class="fas fa-book"></i> ${user.public_repos} repos</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function displayRepositories(repos) {
+                if (repos.length === 0) {
+                    repoList.innerHTML = '<div class="alert alert-info">This user has no public repositories.</div>';
+                    return;
+                }
+                
+                repos.forEach(repo => {
+                    const languageColor = repo.language ? getLanguageColor(repo.language) : '#ccc';
+                    
+                    const repoItem = document.createElement('div');
+                    repoItem.className = 'repo-item';
+                    repoItem.innerHTML = `
+                        <a href="${repo.html_url}" target="_blank" class="repo-name">${repo.name}</a>
+                        <p class="repo-description">${repo.description || 'No description available'}</p>
+                        <div class="repo-meta">
+                            ${repo.language ? `
+                                <span>
+                                    <span class="repo-language" style="background-color: ${languageColor};"></span>
+                                    ${repo.language}
+                                </span>
+                            ` : ''}
+                            <span><i class="far fa-star"></i> ${repo.stargazers_count}</span>
+                            <span><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
+                            ${repo.updated_at ? `
+                                <span><i class="far fa-clock"></i> Updated ${formatDate(repo.updated_at)}</span>
+                            ` : ''}
+                        </div>
+                    `;
+                    repoList.appendChild(repoItem);
+                });
+            }
+            
+            function showError(message) {
+                errorContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${message}
+                    </div>
+                `;
+            }
+            
+            function getLanguageColor(language) {
+                // Simple language color mapping (GitHub uses more sophisticated colors)
+                const colors = {
+                    'JavaScript': '#f1e05a',
+                    'Python': '#3572A5',
+                    'Java': '#b07219',
+                    'TypeScript': '#3178c6',
+                    'C++': '#f34b7d',
+                    'Ruby': '#701516',
+                    'PHP': '#4F5D95',
+                    'CSS': '#563d7c',
+                    'HTML': '#e34c26',
+                    'Go': '#00ADD8',
+                    'Swift': '#ffac45',
+                    'Kotlin': '#A97BFF'
+                };
+                
+                return colors[language] || '#ccc';
+            }
+            
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+        });
+    </script>
+</body>
+</html>
